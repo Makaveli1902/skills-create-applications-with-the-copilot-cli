@@ -1,11 +1,14 @@
 #!/usr/bin/env node
 
 /**
- * Node.js CLI calculator supporting only the four basic operations:
+ * Node.js CLI calculator supporting the following operations:
  * - addition
  * - subtraction
  * - multiplication
  * - division
+ * - modulo
+ * - exponentiation (power)
+ * - square root
  */
 
 /**
@@ -40,6 +43,35 @@ function division(left, right) {
   return left / right;
 }
 
+/**
+ * modulo: return the remainder of a divided by b.
+ */
+function modulo(a, b) {
+  if (b === 0) {
+    throw new Error("Modulo by zero is not allowed.");
+  }
+
+  return a % b;
+}
+
+/**
+ * power: return base raised to the exponent.
+ */
+function power(base, exponent) {
+  return Math.pow(base, exponent);
+}
+
+/**
+ * squareRoot: return the square root of n.
+ */
+function squareRoot(n) {
+  if (n < 0) {
+    throw new Error("Square root of a negative number is not allowed.");
+  }
+
+  return Math.sqrt(n);
+}
+
 function getOperation(operation) {
   const normalizedOperation = operation.toLowerCase();
 
@@ -59,6 +91,17 @@ function getOperation(operation) {
     divide: division,
     "/": division,
     "÷": division,
+    modulo,
+    mod: modulo,
+    "%": modulo,
+    power,
+    pow: power,
+    exponentiation: power,
+    "^": power,
+    "**": power,
+    squareroot: squareRoot,
+    sqrt: squareRoot,
+    "√": squareRoot,
   };
 
   return operations[normalizedOperation];
@@ -79,7 +122,7 @@ function calculate(operation, left, right) {
 
   if (!operationHandler) {
     throw new Error(
-      `Unsupported operation "${operation}". Use addition, subtraction, multiplication, or division.`
+      `Unsupported operation "${operation}". Use addition, subtraction, multiplication, division, modulo, power, or squareRoot.`
     );
   }
 
@@ -89,7 +132,7 @@ function calculate(operation, left, right) {
 function printUsage() {
   console.log(
     "Usage: node src/calculator.js <operation> <left> <right>\n" +
-      "Operations: addition (+), subtraction (-), multiplication (*), division (/)"
+      "Operations: addition (+), subtraction (-), multiplication (*), division (/), modulo (%), power (^), squareRoot (√)"
   );
 }
 
@@ -122,5 +165,8 @@ module.exports = {
   subtraction,
   multiplication,
   division,
+  modulo,
+  power,
+  squareRoot,
   calculate,
 };
