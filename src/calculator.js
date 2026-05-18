@@ -1,11 +1,14 @@
 #!/usr/bin/env node
 
 /**
- * Node.js CLI calculator supporting only the four basic operations:
+ * Node.js CLI calculator supporting basic and extended operations:
  * - addition
  * - subtraction
  * - multiplication
  * - division
+ * - modulo
+ * - power
+ * - square root
  */
 
 /**
@@ -40,6 +43,35 @@ function division(left, right) {
   return left / right;
 }
 
+/**
+ * modulo: return the remainder of dividing the first number by the second.
+ */
+function modulo(left, right) {
+  if (right === 0) {
+    throw new Error("Modulo by zero is not allowed.");
+  }
+
+  return left % right;
+}
+
+/**
+ * power: raise the base to the provided exponent.
+ */
+function power(base, exponent) {
+  return base ** exponent;
+}
+
+/**
+ * squareRoot: return the square root of a number.
+ */
+function squareRoot(value) {
+  if (value < 0) {
+    throw new Error("Square root of a negative number is not allowed.");
+  }
+
+  return Math.sqrt(value);
+}
+
 function getOperation(operation) {
   const normalizedOperation = operation.toLowerCase();
 
@@ -59,6 +91,16 @@ function getOperation(operation) {
     divide: division,
     "/": division,
     "÷": division,
+    modulo,
+    "%": modulo,
+    mod: modulo,
+    power,
+    exponentiation: power,
+    "^": power,
+    "**": power,
+    squareroot: squareRoot,
+    "square root": squareRoot,
+    sqrt: squareRoot,
   };
 
   return operations[normalizedOperation];
@@ -79,7 +121,7 @@ function calculate(operation, left, right) {
 
   if (!operationHandler) {
     throw new Error(
-      `Unsupported operation "${operation}". Use addition, subtraction, multiplication, or division.`
+      `Unsupported operation "${operation}". Use addition, subtraction, multiplication, division, modulo, power, or square root.`
     );
   }
 
@@ -88,15 +130,25 @@ function calculate(operation, left, right) {
 
 function printUsage() {
   console.log(
-    "Usage: node src/calculator.js <operation> <left> <right>\n" +
-      "Operations: addition (+), subtraction (-), multiplication (*), division (/)"
+    "Usage: node src/calculator.js <operation> <value> [right]\n" +
+      "Operations: addition (+), subtraction (-), multiplication (*), division (/), modulo (%), power (**), square root (sqrt)\n" +
+      "Square root uses a single numeric operand; the other operations require two."
   );
 }
 
 function runCli() {
   const [operation, leftInput, rightInput] = process.argv.slice(2);
+  const normalizedOperation = operation?.toLowerCase();
+  const isUnaryOperation =
+    normalizedOperation === "sqrt" ||
+    normalizedOperation === "squareroot" ||
+    normalizedOperation === "square root";
 
-  if (!operation || leftInput === undefined || rightInput === undefined) {
+  if (
+    !operation ||
+    leftInput === undefined ||
+    (!isUnaryOperation && rightInput === undefined)
+  ) {
     printUsage();
     process.exitCode = 1;
     return;
@@ -104,7 +156,10 @@ function runCli() {
 
   try {
     const left = parseNumber(leftInput, "left operand");
-    const right = parseNumber(rightInput, "right operand");
+    const right =
+      isUnaryOperation || rightInput === undefined
+        ? undefined
+        : parseNumber(rightInput, "right operand");
     const result = calculate(operation, left, right);
     console.log(result);
   } catch (error) {
@@ -122,5 +177,8 @@ module.exports = {
   subtraction,
   multiplication,
   division,
+  modulo,
+  power,
+  squareRoot,
   calculate,
 };
